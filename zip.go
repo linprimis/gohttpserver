@@ -40,11 +40,11 @@ func statFile(filename string) (info os.FileInfo, reader io.ReadCloser, err erro
 	// content
 	if info.Mode()&os.ModeSymlink != 0 {
 		var target string
-		target, err = os.Readlink(filename)
+		target, err = filepath.EvalSymlinks(filename)
 		if err != nil {
 			return
 		}
-		reader = ioutil.NopCloser(bytes.NewBuffer([]byte(target)))
+		info, reader, err = statFile(target)
 	} else if !info.IsDir() {
 		reader, err = os.Open(filename)
 		if err != nil {
